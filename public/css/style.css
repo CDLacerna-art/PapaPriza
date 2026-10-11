@@ -147,7 +147,7 @@ section {
     background-image: linear-gradient(
         rgba(0, 0, 0, 0.35),
         rgba(0, 0, 0, 0.35)
-    ), url('/Images/menu-bg.jpg');
+    ), url('/Images/Menu-bg.jpg');
 
     background-size: cover;
     background-position: center;
