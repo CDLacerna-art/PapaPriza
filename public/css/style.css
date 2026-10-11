@@ -147,7 +147,7 @@ section {
     background-image: linear-gradient(
         rgba(0, 0, 0, 0.35),
         rgba(0, 0, 0, 0.35)
-    ), url('/images/menu-bg.jpg');
+    ), url('/Images/menu-bg.jpg');
 
     background-size: cover;
     background-position: center;
@@ -269,7 +269,7 @@ section {
     top: 0;
     width: 30%;
     height: 90%;
-    background-image: url('/images/flamingo.jpg');
+    background-image: url('/Images/flamingo.jpg');
     background-size: 115%;
     background-repeat: no-repeat;
     background-position: center center;

@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +29,9 @@
             margin: 0 auto;
         }
 
-        .header, .order, .empty {
+        .header,
+        .order,
+        .empty {
             background: #fff;
             padding: 28px;
             border-radius: 18px;
@@ -45,11 +47,15 @@
             flex-wrap: wrap;
         }
 
-        h1, .order h2, .empty h2 {
+        h1,
+        .order h2,
+        .empty h2 {
             color: #a83f68;
         }
 
-        h1, .order h2, .empty h2 {
+        h1,
+        .order h2,
+        .empty h2 {
             font-family: 'Playfair Display', serif;
         }
 
@@ -58,7 +64,8 @@
             font-size: 32px;
         }
 
-        .order h2, .empty h2 {
+        .order h2,
+        .empty h2 {
             margin-top: 0;
         }
 
@@ -115,7 +122,9 @@
                 padding: 20px 12px;
             }
 
-            .header, .order, .empty {
+            .header,
+            .order,
+            .empty {
                 padding: 22px;
             }
 
@@ -124,64 +133,64 @@
             }
         }
 
-.status {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    min-width: 130px;
-    padding: 0 20px;
-    border-radius: 25px;
-    background: #fce7ef;
-    color: #a83f68;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1;
-    border: none;
-}
+        .status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 42px;
+            min-width: 130px;
+            padding: 0 20px;
+            border-radius: 25px;
+            background: #fce7ef;
+            color: #a83f68;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1;
+            border: none;
+        }
 
-.status-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
+        .status-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
 
-.cancel-button {
-    cursor: pointer;
-    background: #fde8e8;
-    color: #b42318;
-    transition: background 0.2s ease, color 0.2s ease;
-}
+        .cancel-button {
+            cursor: pointer;
+            background: #fde8e8;
+            color: #b42318;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
 
-.cancel-button:hover {
-    background: #b42318;
-    color: white;
-}
+        .cancel-button:hover {
+            background: #b42318;
+            color: white;
+        }
 
-.status-cancelled {
-    background: #fde8e8;
-    color: #b42318;
-}
+        .status-cancelled {
+            background: #fde8e8;
+            color: #b42318;
+        }
 
-.alert {
-    padding: 14px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    font-weight: 500;
-}
+        .alert {
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
 
-.alert-success {
-    background: #e7f6ec;
-    color: #1e6b3a;
-}
+        .alert-success {
+            background: #e7f6ec;
+            color: #1e6b3a;
+        }
 
-.alert-error {
-    background: #fde8e8;
-    color: #b42318;
-}
+        .alert-error {
+            background: #fde8e8;
+            color: #b42318;
+        }
     </style>
 </head>
 
@@ -203,33 +212,33 @@
         </div>
 
         @forelse ($orders as $order)
-            <div class="order">
-                <h2>{{ $order->pizza_name }}</h2>
+        <div class="order">
+            <h2>{{ $order->pizza_name }}</h2>
 
-                <p><strong>Order number:</strong> #{{ $order->id }}</p>
-                <p><strong>Price:</strong> ₱{{ number_format($order->pizza_price, 2) }}</p>
-                <p><strong>Ordered on:</strong> {{ $order->created_at->format('M d, Y h:i A') }}</p>
+            <p><strong>Order number:</strong> #{{ $order->id }}</p>
+            <p><strong>Price:</strong> ₱{{ number_format($order->pizza_price, 2) }}</p>
+            <p><strong>Ordered on:</strong> {{ $order->created_at->format('M d, Y h:i A') }}</p>
 
-                <p><strong>Current status:</strong></p>
-                
-<div class="status-row">
-    <span class="status {{ $order->status === 'Cancelled' ? 'status-cancelled' : '' }}">{{ $order->status }}</span>
+            <p><strong>Current status:</strong></p>
 
-    @if ($order->status === 'Pending')
-        <form method="POST" action="{{ route('customer.orders.cancel', $order) }}"
-              onsubmit="return confirm('Cancel this order?');" style="margin: 0;">
-            @csrf
-            <button type="submit" class="status cancel-button">Cancel Order</button>
-        </form>
-    @endif
-</div>
-</div>
-        @empty
-            <div class="empty">
-                <h2>No orders yet</h2>
-                <p>Your pizza orders will appear here after you place them while logged in.</p>
-                <a class="button" href="{{ url('/menu') }}">Browse the Menu</a>
+            <div class="status-row">
+                <span class="status {{ $order->status === 'Cancelled' ? 'status-cancelled' : '' }}">{{ $order->status }}</span>
+
+                @if ($order->status === 'Pending')
+                <form method="POST" action="{{ route('customer.orders.cancel', $order) }}"
+                    onsubmit="return confirm('Cancel this order?');" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="status cancel-button">Cancel Order</button>
+                </form>
+                @endif
             </div>
+        </div>
+        @empty
+        <div class="empty">
+            <h2>No orders yet</h2>
+            <p>Your pizza orders will appear here after you place them while logged in.</p>
+            <a class="button" href="{{ url('/menu') }}">Browse the Menu</a>
+        </div>
         @endforelse
     </div>
     @if (session('success'))
@@ -239,4 +248,5 @@
     <div class="alert alert-error">{{ session('error') }}</div>
     @endif
 </body>
+
 </html>
