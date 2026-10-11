@@ -173,7 +173,7 @@
 
             <div class="food-image">
                 <img
-                    src="{{ asset('images/creamy-spinach.jpg') }}"
+                    src="{{ asset('Images/creamy-spinach.jpg') }}"
                     alt="Creamy Spinach Pizza"
                 >
             </div>
@@ -203,7 +203,7 @@
 
             <div class="food-image">
                 <img
-                    src="{{ asset('images/all-meat.jpg') }}"
+                    src="{{ asset('Images/all-meat.jpg') }}"
                     alt="All Meat Pizza"
                 >
             </div>
@@ -233,7 +233,7 @@
 
             <div class="food-image">
                 <img
-                    src="{{ asset('images/garlic-shrimp.jpg') }}"
+                    src="{{ asset('Images/garlic-shrimp.jpg') }}"
                     alt="Garlic Shrimp Pizza"
                 >
             </div>
