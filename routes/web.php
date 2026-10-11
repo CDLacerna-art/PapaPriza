@@ -7,7 +7,7 @@ use App\Http\Controllers\ContactController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerAuthController;
 
-
+// Customer orders
 Route::post('/orders', [OrderController::class, 'store'])
     ->middleware('auth')
     ->name('orders.store');
@@ -20,6 +20,7 @@ Route::post('/customer/orders/{order}/cancel', [CustomerOrderController::class, 
     ->middleware('auth')
     ->name('customer.orders.cancel');
 
+// Home, menu, and contact pages
 Route::get('/', function () {
     return view('home');
 });
@@ -32,10 +33,11 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact.show');
 
+// Submit contact form
 Route::post('/contact', [ContactController::class, 'submit'])
     ->name('contact.submit');
 
-// Admin login
+// Admin login and logout
 Route::get('/admin/login', [AuthController::class, 'showLogin'])
     ->name('admin.login');
 
@@ -46,9 +48,10 @@ Route::post('/admin/login', [AuthController::class, 'login'])
 Route::post('/admin/logout', [AuthController::class, 'logout'])
     ->name('admin.logout');
 
-// Protected Admin Routes Group
+// Admin-only routes
 Route::middleware(['auth', 'admin'])->group(function () {
-    // Admin orders and reports page
+    
+   // Admin-only routes
     Route::get('/admin/orders', [AdminController::class, 'index'])
         ->name('admin.orders');
 

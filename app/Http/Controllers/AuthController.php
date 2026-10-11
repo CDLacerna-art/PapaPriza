@@ -9,16 +9,11 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    /**
-     * Display the administrator login view.
-     *
-     * If the user is already authenticated and is the administrator,
-     * redirect directly to the admin orders dashboard.
-     *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
-     */
+     // Show the login page
     public function showLogin(): View|RedirectResponse
     {
+
+    // Redirect to dashboard if admin is already logged in
         if (Auth::check() && strtolower((string) Auth::user()->email) === strtolower((string) config('app.admin_email'))) {
             return redirect()->route('admin.orders');
         }
@@ -26,17 +21,11 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Authenticate the administrator credentials.
-     *
-     * Validates input, verifies that the user matches the configured ADMIN_EMAIL,
-     * records an activity log entry, and regenerates the session.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Log in the administrator
     public function login(Request $request): RedirectResponse
     {
+
+     // Check the login details
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -45,7 +34,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Only allow the designated admin account.
+        // Only allow the designated admin account
             if (strtolower((string) Auth::user()->email) !== strtolower((string) config('app.admin_email'))) {
                 Auth::logout();
                 $request->session()->invalidate();
@@ -56,32 +45,32 @@ class AuthController extends Controller
                 ]);
             }
 
+            // Record the admin login in the activity log
             $admin = Auth::user();
             \App\Models\ActivityLog::record('login', 'Auth', "Admin {$admin->name} ({$admin->email}) logged in.", $admin);
 
             return redirect()->route('admin.orders');
         }
 
+        // Show an error if the login details are incorrect
         return back()->withErrors([
             'email' => 'The email or password is incorrect.',
         ])->onlyInput('email');
     }
 
-    /**
-     * Log the administrator out of the application and invalidate the session.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Log out the administrator
     public function logout(Request $request): RedirectResponse
     {
         $admin = Auth::user();
+
+        // Record the admin logout in the activity log
         if ($admin) {
             \App\Models\ActivityLog::record('logout', 'Auth', "Admin {$admin->name} ({$admin->email}) logged out.", $admin);
         }
 
         Auth::logout();
 
+        // Clear the session for security
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

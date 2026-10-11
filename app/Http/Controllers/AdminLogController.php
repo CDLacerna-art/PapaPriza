@@ -8,14 +8,10 @@ use Illuminate\View\View;
 
 class AdminLogController extends Controller
 {
-    /**
-     * Display a paginated listing of activity logs with optional filters.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
-     */
+    // BITOIN - Display activity logs and allow filtering
     public function index(Request $request): View
     {
+        // Get activity logs, starting with the latest
         $query = ActivityLog::latest();
 
         if ($request->filled('module')) {
@@ -28,10 +24,11 @@ class AdminLogController extends Controller
 
         $logs = $query->paginate(15)->withQueryString();
 
-        // Get distinct modules and actions for filter dropdowns
+        // Get unique modules and actions for the filter dropdowns
         $modules = ActivityLog::select('module')->distinct()->pluck('module');
         $actions = ActivityLog::select('action')->distinct()->pluck('action');
 
+        // Send the logs and filter options to the admin logs page
         return view('admin.logs', compact('logs', 'modules', 'actions'));
     }
 }

@@ -8,17 +8,11 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    /**
-     * Store a new pizza order for the authenticated user.
-     *
-     * The user_id is always taken from Auth::id() — never from the request —
-     * so an attacker cannot forge a different owner.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+      // Save a new pizza order
     public function store(Request $request)
     {
+
+    // Check if the order details are valid
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -27,6 +21,7 @@ class OrderController extends Controller
             'message' => 'nullable|string|max:2000',
         ]);
 
+         // Set the price of each pizza
         $prices = [
             'Creamy Spinach Pizza' => 299,
             'All Meat Pizza' => 349,
@@ -35,12 +30,14 @@ class OrderController extends Controller
 
         $pizzaName = $request->input('pizza_name');
 
+        // Check if the selected pizza is valid
         if (!array_key_exists($pizzaName, $prices)) {
             return back()->withErrors([
                 'pizza_name' => 'Please select a valid pizza.',
             ]);
         }
 
+          // Save the order under the logged-in customer
         $order = Order::create([
             'user_id' => Auth::id(),
             'customer_name' => $request->input('name'),
@@ -58,6 +55,7 @@ class OrderController extends Controller
             "Order #{$order->id} created for {$order->pizza_name} (₱" . number_format($order->pizza_price, 2) . ") by {$order->customer_name}."
         );
 
+         // Return a success message
         return response()->json([
             'message' => 'Your order has been saved successfully!',
         ], 201);

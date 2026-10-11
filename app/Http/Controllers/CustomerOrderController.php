@@ -9,11 +9,7 @@ use Illuminate\View\View;
 
 class CustomerOrderController extends Controller
 {
-    /**
-     * Display a listing of orders placed by the authenticated customer.
-     *
-     * @return \Illuminate\View\View
-     */
+    // Display the customer's orders
     public function index(): View
     {
         $orders = Auth::user()
@@ -24,12 +20,7 @@ class CustomerOrderController extends Controller
         return view('customer.orders', compact('orders'));
     }
 
-    /**
-     * Cancel a pending order placed by the authenticated customer and record an activity log entry.
-     *
-     * @param  \App\Models\Order  $order
-     * @return \Illuminate\Http\RedirectResponse
-     */
+     // Cancel a customer's order
     public function cancel(Order $order): RedirectResponse
     {
         // Only the owner can cancel their own order
@@ -42,8 +33,10 @@ class CustomerOrderController extends Controller
             return back()->with('error', 'This order can no longer be cancelled.');
         }
 
+         // Update the order status
         $order->update(['status' => 'Cancelled']);
 
+          // Record the cancellation in the activity log
         \App\Models\ActivityLog::record(
             'cancelled',
             'Orders',

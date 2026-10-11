@@ -11,25 +11,16 @@ use Illuminate\View\View;
 
 class CustomerAuthController extends Controller
 {
-    /**
-     * Show the customer account registration form.
-     *
-     * @return \Illuminate\View\View
-     */
+    //Show the customer account registration form.
     public function showRegister(): View
     {
         return view('customer.register');
     }
 
-    /**
-     * Handle customer registration, hash password, prevent admin email hijacking,
-     * log in the new customer, and record an activity log entry.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // register a new customer
     public function register(Request $request): RedirectResponse
     {
+        // Check if the input is valid
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -38,6 +29,8 @@ class CustomerAuthController extends Controller
                 'max:255',
                 'unique:users,email',
                 function ($attribute, $value, $fail) {
+
+                 // Prevent customers from using the admin email
                     if (strtolower((string) $value) === strtolower((string) config('app.admin_email'))) {
                         $fail('This email address is reserved for system administration and cannot be registered as a customer.');
                     }
@@ -46,45 +39,40 @@ class CustomerAuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
+         // Create the customer and encrypt the password
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
+         // Log in the new customer
         Auth::login($user);
         $request->session()->regenerate();
 
+     // Record the registration in the activity log
         \App\Models\ActivityLog::record('register', 'Auth', "Customer {$user->name} ({$user->email}) registered an account.", $user);
 
         return redirect()->route('customer.orders');
     }
 
-    /**
-     * Show the customer login form.
-     *
-     * @return \Illuminate\View\View
-     */
+    // Show the customer login form.
     public function showLogin(): View
     {
         return view('customer.login');
     }
 
-    /**
-     * Authenticate customer login credentials.
-     *
-     * Ensures admin account credentials cannot log in via the customer login portal.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+     // Log in an existing customer
     public function login(Request $request): RedirectResponse
     {
+
+    // Check the login details
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
+        // Allow customer accounts only
         if (
             Auth::attempt($credentials) &&
             strtolower((string) Auth::user()->email) !== strtolower((string) config('app.admin_email'))
@@ -97,21 +85,18 @@ class CustomerAuthController extends Controller
             return redirect()->route('customer.orders');
         }
 
+          // Log out if the account is not allowed
         if (Auth::check()) {
             Auth::logout();
         }
 
+        // Show an error for incorrect login details
         return back()->withErrors([
             'email' => 'The customer email or password is incorrect.',
         ])->onlyInput('email');
     }
 
-    /**
-     * Log the customer out of the application and invalidate the session.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Log the customer out of the application and invalidate the session.
     public function logout(Request $request): RedirectResponse
     {
         $user = Auth::user();
@@ -121,6 +106,7 @@ class CustomerAuthController extends Controller
 
         Auth::logout();
 
+         // Clear the session for security
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

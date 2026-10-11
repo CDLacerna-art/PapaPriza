@@ -13,12 +13,7 @@ use Illuminate\View\View;
 
 class AdminUserController extends Controller
 {
-    /**
-     * Display a listing of registered users with search and order counts.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
-     */
+    // Display users and search by name or email
     public function index(Request $request): View
     {
         $search = $request->query('search');
@@ -31,30 +26,22 @@ class AdminUserController extends Controller
                   ->orWhere('email', 'like', "%{$search}%");
             });
         }
-
+    // Show 10 users per page
         $users = $usersQuery->paginate(10)->withQueryString();
 
         return view('admin.users.index', compact('users', 'search'));
     }
 
-    /**
-     * Show the form for creating a new user.
-     *
-     * @return \Illuminate\View\View
-     */
+    // Show the form to add a user
     public function create(): View
     {
         return view('admin.users.create');
     }
 
-    /**
-     * Store a newly created user in storage and record an activity log entry.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Save a new user account
     public function store(Request $request): RedirectResponse
     {
+        // Check if the input is valid
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => [
@@ -71,12 +58,14 @@ class AdminUserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
+    // Create the user and encrypt the password
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
+        // Record the activity
         ActivityLog::record(
             'created',
             'Users',
@@ -88,12 +77,7 @@ class AdminUserController extends Controller
             ->with('success', "User {$user->name} created successfully!");
     }
 
-    /**
-     * Show the form for editing an existing user.
-     *
-     * @param  int|string  $id
-     * @return \Illuminate\View\View
-     */
+    // Show the form to edit a user
     public function edit($id): View
     {
         $user = User::withCount('orders')->findOrFail($id);
@@ -101,17 +85,12 @@ class AdminUserController extends Controller
         return view('admin.users.edit', compact('user'));
     }
 
-    /**
-     * Update the specified user in storage and record an activity log entry.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int|string  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Update user information
     public function update(Request $request, $id): RedirectResponse
     {
         $user = User::findOrFail($id);
 
+    // Check if the input is valid
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => [
@@ -132,6 +111,7 @@ class AdminUserController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
 
+    // Change password only if a new one is provided
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
@@ -149,19 +129,12 @@ class AdminUserController extends Controller
             ->with('success', "User {$user->name} updated successfully!");
     }
 
-    /**
-     * Remove the specified user from storage and record an activity log entry.
-     *
-     * Safety check: Prevents the currently logged-in administrator from deleting their own account.
-     *
-     * @param  int|string  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Delete a user account
     public function destroy($id): RedirectResponse
     {
         $user = User::findOrFail($id);
 
-        // Safety: Admin cannot delete their own account
+        // Prevent the admin from deleting their own account
         if ($user->id === Auth::id() || strtolower((string) $user->email) === strtolower((string) config('app.admin_email'))) {
             return redirect()
                 ->route('admin.users.index')
@@ -171,7 +144,7 @@ class AdminUserController extends Controller
         $userName = $user->name;
         $userEmail = $user->email;
 
-        // Record log before deleting
+        // Record the activity before deleting the user
         ActivityLog::record(
             'deleted',
             'Users',

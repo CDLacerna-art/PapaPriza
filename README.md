@@ -7,7 +7,7 @@ A family-style pizza ordering web application built with Laravel. Customers can 
 ## Features
 
 | Feature | Who |
-|       --|- - -|
+|---|---|
 | Browse pizza menu | Everyone |
 | Place an order (via modal + Fetch API) | Logged-in customers |
 | Track and cancel pending orders | Logged-in customers |

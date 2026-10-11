@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Request;
 
 class ActivityLog extends Model
 {
+
+// Fields that can be saved
     protected $fillable = [
         'user_id',
         'user_name',
@@ -18,33 +20,24 @@ class ActivityLog extends Model
         'ip_address',
     ];
 
-    /**
-     * Relationship to the user who performed the activity.
-     */
+      // Connect the activity log to its user
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Record an activity log entry.
-     *
-     * Automatically captures the authenticated user (or specified name) and request IP address.
-     *
-     * @param string $action The action performed (e.g. created, updated, cancelled, deleted, login, logout)
-     * @param string $module The module affected (e.g. Orders, Auth)
-     * @param string $description A human-readable description of the activity
-     * @param User|null $user Optional user override (useful during login/logout)
-     * @return static
-     */
+    // Record an activity log entry.
     public static function record(string $action, string $module, string $description, ?User $user = null): static
     {
+          // Get the current user
         $currentUser = $user ?? Auth::user();
 
+        // Get the user's details and IP address
         $userId = $currentUser?->id;
         $userName = $currentUser?->name ?? 'Guest/System';
         $ip = Request::ip();
 
+        // Save the activity details
         return static::create([
             'user_id' => $userId,
             'user_name' => $userName,

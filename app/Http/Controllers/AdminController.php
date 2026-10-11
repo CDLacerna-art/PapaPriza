@@ -12,16 +12,10 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    /**
-     * Display the admin orders list and summary reports.
-     *
-     * Supports optional date range filtering ('from' and 'to') validated via $request->validate().
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
-     */
+    // BITOIN - Display orders and reports on the admin page.
     public function index(Request $request): View
     {
+        // Check if the selected dates are valid.
         $request->validate([
             'from' => ['nullable', 'date'],
             'to'   => ['nullable', 'date', 'after_or_equal:from'],
@@ -30,7 +24,7 @@ class AdminController extends Controller
         $fromDate = $request->query('from');
         $toDate = $request->query('to');
 
-        // Fetch orders for the management table (filtered if date range provided)
+        // Get orders based on the selected date range.
         $ordersQuery = Order::latest();
         if ($fromDate) {
             $ordersQuery->whereDate('created_at', '>=', $fromDate);
@@ -40,19 +34,13 @@ class AdminController extends Controller
         }
         $orders = $ordersQuery->get();
 
-        // Compute report data using Eloquent & query builder with bindings
+        // Get the data needed for the reports.
         $reports = $this->getReportData($fromDate, $toDate);
 
         return view('admin.orders', compact('orders', 'reports', 'fromDate', 'toDate'));
     }
 
-    /**
-     * Update the workflow status of an existing order and log the activity.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int|string  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Update an order's status and record the activity
     public function updateStatus(Request $request, $id): RedirectResponse
     {
         $request->validate([
@@ -61,8 +49,10 @@ class AdminController extends Controller
                 'in:Pending,Preparing,Cooking,Delivery,Completed',
             ],
         ]);
-
+    // Find the order using its ID.
         $order = Order::findOrFail($id);
+
+    // Do not allow changes if the order is cancelled.
         if ($order->status === 'Cancelled') {
             return redirect()
                 ->route('admin.orders')
@@ -71,10 +61,11 @@ class AdminController extends Controller
 
         $oldStatus = $order->status;
         $newStatus = $request->status;
-
+    // Save the new order status. 
         $order->status = $newStatus;
         $order->save();
 
+    // Record the status change in the activity log.
         ActivityLog::record(
             'updated',
             'Orders',
@@ -86,17 +77,12 @@ class AdminController extends Controller
             ->with('success', 'Order status updated successfully!');
     }
 
-    /**
-     * Soft-delete an order and record an activity log entry before deletion.
-     *
-     * @param  int|string  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Delete an order after recording the activity.
     public function destroy($id): RedirectResponse
     {
         $order = Order::findOrFail($id);
 
-        // Record log BEFORE deleting as required by Task 2.3
+        // Record the deletion before deleting the order.
         ActivityLog::record(
             'deleted',
             'Orders',
@@ -110,15 +96,7 @@ class AdminController extends Controller
             ->with('success', "Order #{$id} has been deleted successfully.");
     }
 
-    /**
-     * Compute analytics and report summaries for the admin dashboard.
-     *
-     * Cancelled and soft-deleted orders are excluded from total sales.
-     *
-     * @param  string|null  $fromDate
-     * @param  string|null  $toDate
-     * @return array
-     */
+    // Get the data needed for the admin reports.
     private function getReportData(?string $fromDate, ?string $toDate): array
     {
         $baseQuery = Order::query();
@@ -130,21 +108,22 @@ class AdminController extends Controller
             $baseQuery->whereDate('created_at', '<=', $toDate);
         }
 
-        // a. Total orders and total sales (excluding Cancelled and soft-deleted orders)
+        // Count the orders.
         $totalOrders = (clone $baseQuery)->count();
 
+        // Calculate sales without cancelled orders. 
         $totalSales = (clone $baseQuery)
             ->where('status', '!=', 'Cancelled')
             ->sum('pizza_price');
 
-        // b. Orders by status
+        // Count the orders for each status.
         $statusCounts = (clone $baseQuery)
             ->select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->pluck('count', 'status')
             ->toArray();
 
-        // c. Orders per day (newest first, limit 14 days if no date range specified)
+        // Get the number of orders and sales for each day. 
         $ordersPerDayQuery = (clone $baseQuery)
             ->select(
                 DB::raw('DATE(created_at) as order_date'),
@@ -154,13 +133,14 @@ class AdminController extends Controller
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderByDesc(DB::raw('DATE(created_at)'));
 
+        // Show only the latest 14 days if no dates are selected.
         if (!$fromDate && !$toDate) {
             $ordersPerDayQuery->limit(14);
         }
 
         $ordersPerDay = $ordersPerDayQuery->get();
 
-        // d. Top 5 items: pizza name, number of orders, sales (excluding Cancelled from sales)
+        // Get the top 5 pizzas based on order count.
         $topItems = (clone $baseQuery)
             ->select(
                 'pizza_name',
@@ -172,6 +152,7 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
+        // Return all the report date.
         return [
             'total_orders'  => $totalOrders,
             'total_sales'   => (float) $totalSales,
