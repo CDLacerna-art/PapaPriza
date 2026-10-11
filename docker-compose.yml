@@ -1,0 +1,51 @@
+services:
+  app:
+    build: .
+    container_name: papapriza_app
+    ports:
+      - "8080:80"            # open http://localhost:8080
+    env_file: .env.docker
+    environment:
+      DB_HOST: db
+      RUN_MIGRATIONS: "true" # runs php artisan migrate --force on start
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - storage_data:/var/www/html/storage
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: papapriza_db
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-papapriza}
+      MYSQL_USER: ${DB_USERNAME:-papapriza}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change_me}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change_me_root}
+    ports:
+      - "3307:3306"          # 3307 so it does not clash with XAMPP MySQL (3306)
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # Optional: docker compose --profile tools up -d
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: papapriza_pma
+    profiles: ["tools"]
+    environment:
+      PMA_HOST: db
+    ports:
+      - "8081:80"            # open http://localhost:8081
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  storage_data:
