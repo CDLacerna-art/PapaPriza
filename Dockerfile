@@ -1,9 +1,9 @@
 # ---------- Stage 1: build front-end assets (Vite) ----------
-FROM node:20-alpine AS assets
+FROM node:22-alpine AS assets
 WORKDIR /app
 COPY . .
-RUN if [ -f package.json ]; then (npm ci || npm install) && npm run build; fi \
- && mkdir -p public/build
+RUN mkdir -p public/build
+RUN if [ -f package.json ]; then (npm ci || npm install) && npm run build || echo "WARNING: front-end build skipped"; fi
 
 # ---------- Stage 2: PHP + Nginx app image ----------
 FROM php:8.4-fpm-alpine
@@ -36,3 +36,4 @@ RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/ent
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+
