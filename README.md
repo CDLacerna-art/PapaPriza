@@ -142,7 +142,7 @@ public/
 |---|---|
 | Backend Developer | *Bitoin* |
 | Frontend Developer | *De Asis* |
-| Database Administrator | *Topia* |
+| Database Administrator | *Tapia* |
 | System Support | *Lacerna* |
 | Documentation | *Adrales* |
 
