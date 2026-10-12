@@ -460,3 +460,65 @@ nav .brand {
     height: 75px;
     width: auto;
 }
+/* ---------- Mobile navigation (hamburger) ---------- */
+.nav-toggle { display: none; }
+.nav-links { display: contents; }   /* desktop looks exactly the same as before */
+
+@media (max-width: 900px) {
+    nav {
+        justify-content: space-between;
+        padding: 10px 16px;
+        min-height: 80px;
+    }
+
+    nav .brand {
+        position: static;
+        transform: none;
+        width: auto;
+        margin: 0;
+        justify-content: flex-start;
+    }
+
+    .nav-logo { width: 56px; height: 56px; }
+
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border: none;
+        border-radius: 12px;
+        background: #fce7ef;
+        color: #923153;
+        font-size: 26px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 6px;
+        padding: 12px 0 6px;
+    }
+
+    .nav-links.open { display: flex; }
+
+    nav .nav-links a {
+        margin: 0;
+        padding: 12px 16px;
+        border-radius: 12px;
+    }
+
+    nav .nav-links a:hover { background: #fce7ef; }
+
+    nav .nav-links form { margin-top: 6px; }
+
+    nav .nav-links form button[type="submit"] {
+        width: 100%;
+        padding: 12px 16px;
+    }
+}
