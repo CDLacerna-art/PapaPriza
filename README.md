@@ -36,7 +36,7 @@ A family-style pizza ordering web application built with Laravel. Customers can 
 - PHP **8.3** or higher (with `pdo_sqlite` or `pdo_mysql` extension)
 - Composer
 - Node.js + npm (for the Vite/Tailwind build)
-- SQLite (bundled with PHP) **or** MySQL / PostgreSQL
+- SQLite (bundled with PHP) **or** MySQL / 
 
 ---
 
