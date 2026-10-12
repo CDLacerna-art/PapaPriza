@@ -140,11 +140,11 @@ public/
 
 | Role | Member |
 |---|---|
-| Backend Developer | *(name here)* |
-| Frontend Developer | *(name here)* |
-| Database Administrator | *(name here)* |
-| System Support | *(name here)* |
-| Documentation | *(name here)* |
+| Backend Developer | *Bitoin* |
+| Frontend Developer | *De Asis* |
+| Database Administrator | *Topia* |
+| System Support | *Lacerna* |
+| Documentation | *Adrales* |
 
 ---
 
